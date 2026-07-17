@@ -1,18 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedTodoLists.Api.Attributes;
-using SharedTodoLists.Api.Services;
+using SharedTodoLists.Application.Services;
 
 namespace SharedTodoLists.Api.Controllers;
 
 [ApiController]
 [Route("api/todo-lists")]
 [RequireUserIdHeader]
-public class TodoListsController : ControllerBase
+public class TodoListsController(ITodoListService todoListService) : ControllerBase
 {
-    public TodoListsController()
+    [HttpGet("status")]
+    public async Task<IActionResult> GetStatus()
     {
+        var result = await todoListService.GetStatusAsync();
+        return Ok(result);
     }
-    
+
     [HttpGet]
     public IActionResult GetTodoLists(
         [FromQuery] int page = 1,

@@ -2,6 +2,8 @@ using Microsoft.OpenApi.Models;
 using SharedTodoLists.Api.Middleware;
 using SharedTodoLists.Api.Services;
 using SharedTodoLists.Application.Abstractions;
+using SharedTodoLists.Application.Extensions;
+using SharedTodoLists.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,8 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, HeaderProvider>();
+builder.Services.AddApplication();
+builder.Services.AddPersistence();
 
 var app = builder.Build();
 

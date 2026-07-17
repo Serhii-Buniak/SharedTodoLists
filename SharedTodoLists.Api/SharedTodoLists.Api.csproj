@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SharedTodoLists.Application\SharedTodoLists.Application.csproj" />
+      <ProjectReference Include="..\SharedTodoLists.Persistence\SharedTodoLists.Persistence.csproj" />
     </ItemGroup>
 
 </Project>
