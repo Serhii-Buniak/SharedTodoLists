@@ -1,0 +1,7 @@
+﻿services:
+  sharedtodolists.api:
+    image: sharedtodolists.api
+    build:
+      context: .
+      dockerfile: SharedTodoLists.Api/Dockerfile
+
