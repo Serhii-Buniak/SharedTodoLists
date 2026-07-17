@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Filters;
-using SharedTodoLists.Api.Exceptions;
 using SharedTodoLists.Api.Services;
+using SharedTodoLists.Application.Exceptions;
 
 namespace SharedTodoLists.Api.Attributes;
 
@@ -12,7 +12,9 @@ public class RequireUserIdHeaderAttribute : Attribute, IActionFilter
         var userId = context.HttpContext.Request.Headers[HeaderProvider.UserIdHeaderName].FirstOrDefault();
 
         if (string.IsNullOrWhiteSpace(userId))
-            throw new HeaderException("Required header 'User-Id' is missing or empty.");
+        {
+            throw new RequestContextException("Required header 'User-Id' is missing or empty.");
+        }
     }
 
     public void OnActionExecuted(ActionExecutedContext context) { }

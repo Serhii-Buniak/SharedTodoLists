@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SharedTodoLists.Api.Exceptions;
+using SharedTodoLists.Application.Exceptions;
 
 namespace SharedTodoLists.Api.Middleware;
 
@@ -13,12 +13,12 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
-            // Client disconnected or request was cancelled.
+            // Client disconnected or request was canceled.
             // Don't log as an error.
         }
-        catch (HeaderException ex)
+        catch (RequestContextException ex)
         {
-            logger.LogWarning(ex, "Missing or invalid header");
+            logger.LogError(ex, "Invalid request context");
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
             await context.Response.WriteAsJsonAsync(new ProblemDetails
             {
@@ -29,7 +29,6 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception");
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await context.Response.WriteAsJsonAsync(new ProblemDetails
             {

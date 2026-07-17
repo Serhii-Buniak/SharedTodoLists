@@ -1,8 +1,9 @@
-using SharedTodoLists.Api.Exceptions;
+using SharedTodoLists.Application.Abstractions;
+using SharedTodoLists.Application.Exceptions;
 
 namespace SharedTodoLists.Api.Services;
 
-public class HeaderProvider(IHttpContextAccessor httpContextAccessor) : IHeaderProvider
+public class HeaderProvider(IHttpContextAccessor httpContextAccessor) : ICurrentUserProvider
 {
     public const string UserIdHeaderName = "User-Id";
 
@@ -12,7 +13,7 @@ public class HeaderProvider(IHttpContextAccessor httpContextAccessor) : IHeaderP
 
         if (string.IsNullOrWhiteSpace(userId))
         {
-            throw new HeaderException("Required header 'User-Id' is missing or empty.");
+            throw new RequestContextException("Required header 'User-Id' is missing or empty.");
         }
 
         return userId;

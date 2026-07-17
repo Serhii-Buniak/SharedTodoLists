@@ -9,11 +9,8 @@ namespace SharedTodoLists.Api.Controllers;
 [RequireUserIdHeader]
 public class TodoListsController : ControllerBase
 {
-    private readonly IHeaderProvider _headerProvider;
-
-    public TodoListsController(IHeaderProvider headerProvider)
+    public TodoListsController()
     {
-        _headerProvider = headerProvider;
     }
     
     [HttpGet]

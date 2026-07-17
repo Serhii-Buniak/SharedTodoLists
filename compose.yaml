@@ -5,3 +5,9 @@
       context: .
       dockerfile: SharedTodoLists.Api/Dockerfile
 
+  sharedtodolists.application:
+    image: sharedtodolists.application
+    build:
+      context: .
+      dockerfile: SharedTodoLists.Application/Dockerfile
+
