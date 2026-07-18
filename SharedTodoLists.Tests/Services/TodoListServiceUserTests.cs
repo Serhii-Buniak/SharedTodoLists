@@ -4,6 +4,7 @@ using SharedTodoLists.Application.DTOs.Requests;
 using SharedTodoLists.Application.Exceptions;
 using SharedTodoLists.Application.Models;
 using SharedTodoLists.Application.Services;
+using SharedTodoLists.Application.Validation;
 using SharedTodoLists.Tests.Mocks;
 
 namespace SharedTodoLists.Tests.Services;
@@ -14,6 +15,7 @@ public class TodoListServiceUserTests
     private Mock<ITodoListRepository> _repository = null!;
     private Mock<ICurrentUserProvider> _currentUserProvider = null!;
     private Mock<ITodoListAccessPolicy> _accessPolicy = null!;
+    private Mock<ITodoListValidator> _validator = null!;
     private TodoListService _service = null!;
 
     [SetUp]
@@ -22,11 +24,13 @@ public class TodoListServiceUserTests
         _repository = new Mock<ITodoListRepository>();
         _currentUserProvider = new Mock<ICurrentUserProvider>();
         _accessPolicy = new Mock<ITodoListAccessPolicy>();
+        _validator = new Mock<ITodoListValidator>();
 
         _service = new TodoListService(
             _repository.Object,
             _currentUserProvider.Object,
-            _accessPolicy.Object);
+            _accessPolicy.Object,
+            _validator.Object);
     }
 
     // GetTodoListUsersAsync
@@ -209,14 +213,15 @@ public class TodoListServiceUserTests
         Assert.ThrowsAsync<NotFoundException>(() => _service.RemoveTodoListUserAsync("some-id", "user-99"));
     }
 
-    private static TodoList BuildTodoList(string ownerId = "user-1", IReadOnlySet<string>? sharedUserIds = null) => new()
-    {
-        Id = "some-id",
-        Name = "Test List",
-        OwnerId = ownerId,
-        CreatedAt = DateTime.UtcNow,
-        UpdatedAt = DateTime.UtcNow,
-        SharedUserIds = sharedUserIds ?? new HashSet<string>(),
-        Items = []
-    };
+    private static TodoList BuildTodoList(string ownerId = "user-1", IReadOnlySet<string>? sharedUserIds = null) =>
+        new()
+        {
+            Id = "some-id",
+            Name = "Test List",
+            OwnerId = ownerId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            SharedUserIds = sharedUserIds ?? new HashSet<string>(),
+            Items = []
+        };
 }

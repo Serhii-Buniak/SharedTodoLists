@@ -5,6 +5,7 @@ using SharedTodoLists.Application.DTOs.Responses;
 using SharedTodoLists.Application.Exceptions;
 using SharedTodoLists.Application.Models;
 using SharedTodoLists.Application.Services;
+using SharedTodoLists.Application.Validation;
 using SharedTodoLists.Tests.Mocks;
 
 namespace SharedTodoLists.Tests.Services;
@@ -15,6 +16,7 @@ public class TodoListServiceTests
     private Mock<ITodoListRepository> _repository = null!;
     private Mock<ICurrentUserProvider> _currentUserProvider = null!;
     private Mock<ITodoListAccessPolicy> _accessPolicy = null!;
+    private Mock<ITodoListValidator> _validator = null!;
     private TodoListService _service = null!;
 
     [SetUp]
@@ -23,11 +25,13 @@ public class TodoListServiceTests
         _repository = new Mock<ITodoListRepository>();
         _currentUserProvider = new Mock<ICurrentUserProvider>();
         _accessPolicy = new Mock<ITodoListAccessPolicy>();
+        _validator = new Mock<ITodoListValidator>();
 
         _service = new TodoListService(
             _repository.Object,
             _currentUserProvider.Object,
-            _accessPolicy.Object);
+            _accessPolicy.Object,
+            _validator.Object);
     }
 
     // GetTodoListsStreamAsync

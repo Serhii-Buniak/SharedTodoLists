@@ -4,6 +4,7 @@ using SharedTodoLists.Application.DTOs.Responses;
 using SharedTodoLists.Application.Exceptions;
 using SharedTodoLists.Application.Extensions;
 using SharedTodoLists.Application.Models;
+using SharedTodoLists.Application.Validation;
 
 namespace SharedTodoLists.Application.Services;
 
@@ -12,14 +13,17 @@ internal class TodoListService : ITodoListService
     private readonly ITodoListRepository _todoListRepository;
     private readonly ICurrentUserProvider _currentUserProvider;
     private readonly ITodoListAccessPolicy _accessPolicy;
+    private readonly ITodoListValidator _validator;
 
     public TodoListService(ITodoListRepository todoListRepository,
         ICurrentUserProvider currentUserProvider,
-        ITodoListAccessPolicy accessPolicy)
+        ITodoListAccessPolicy accessPolicy,
+        ITodoListValidator validator)
     {
         _todoListRepository = todoListRepository;
         _currentUserProvider = currentUserProvider;
         _accessPolicy = accessPolicy;
+        _validator = validator;
     }
 
     public async Task<CursorResponse<TodoListResponse>> GetTodoListsStreamAsync(string? cursor, int limit, bool onlyOwned = false, CancellationToken cancellationToken = default)
@@ -67,6 +71,8 @@ internal class TodoListService : ITodoListService
 
     public async Task<TodoListResponse> CreateTodoListAsync(CreateTodoListRequest request, CancellationToken cancellationToken = default)
     {
+        _validator.Validate(request);
+        
         var currentUserId = _currentUserProvider.GetUserId();
         var now = DateTime.UtcNow;
 
@@ -88,6 +94,8 @@ internal class TodoListService : ITodoListService
 
     public async Task<TodoListResponse> UpdateTodoListAsync(string id, UpdateTodoListRequest request, CancellationToken cancellationToken = default)
     {
+        _validator.Validate(request);
+        
         var currentUserId = _currentUserProvider.GetUserId();
 
         var todoList = await _todoListRepository.GetByIdAsync(id, cancellationToken);

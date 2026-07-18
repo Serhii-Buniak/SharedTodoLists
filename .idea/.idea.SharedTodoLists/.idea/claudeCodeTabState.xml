@@ -10,7 +10,8 @@
               <option name="sessionId" value="de2762e7-4102-4a39-9c56-f713fc484e65" />
               <option name="cwd" value="C:\Users\bunia\RiderProjects\SharedTodoLists" />
               <option name="model" value="claude-sonnet-4-6" />
-              <option name="permissionMode" value="default" />
+              <option name="permissionMode" value="acceptEdits" />
+              <option name="reasoningEffort" value="medium" />
             </TabSessionState>
           </value>
         </entry>
