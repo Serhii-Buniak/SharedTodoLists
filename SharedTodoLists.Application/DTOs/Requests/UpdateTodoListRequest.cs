@@ -1,12 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+using SharedTodoLists.Application.Validation;
 
 namespace SharedTodoLists.Application.DTOs.Requests;
 
 public record UpdateTodoListRequest
 {
-    [Required]
-    [MinLength(1)]
-    [MaxLength(255)]
+    [TodoListName]
+    [NotWhiteSpace]
     public required string Name { get; init; }
 
     public required IReadOnlyList<TodoItemRequest> Items { get; init; }
@@ -14,8 +13,7 @@ public record UpdateTodoListRequest
 
 public record TodoItemRequest
 {
-    [Required]
-    [MinLength(1)]
+    [NotWhiteSpace]
     public required string Name { get; init; }
 
     public required bool IsDone { get; init; }
