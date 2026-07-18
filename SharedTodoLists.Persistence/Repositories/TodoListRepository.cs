@@ -32,10 +32,31 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
             OwnerId = todoList.OwnerId,
             CreatedAt = todoList.CreatedAt,
             UpdatedAt = todoList.UpdatedAt,
-            SharedUserIds = todoList.SharedUserIds
+            SharedUserIds = new HashSet<string>(todoList.SharedUserIds),
+            Items = todoList.Items.Select(i => new TodoItemEntry { Name = i.Name, IsDone = i.IsDone }).ToList()
         };
 
         await context.TodoLists.InsertOneAsync(entry, cancellationToken: cancellationToken);
+
+        return ToModel(entry);
+    }
+
+    public async Task<TodoList> UpdateAsync(TodoList todoList, CancellationToken cancellationToken = default)
+    {
+        var objectId = ObjectId.Parse(todoList.Id);
+
+        var entry = new TodoListEntry
+        {
+            Id = objectId,
+            Name = todoList.Name,
+            OwnerId = todoList.OwnerId,
+            CreatedAt = todoList.CreatedAt,
+            UpdatedAt = todoList.UpdatedAt,
+            SharedUserIds = new HashSet<string>(todoList.SharedUserIds),
+            Items = todoList.Items.Select(i => new TodoItemEntry { Name = i.Name, IsDone = i.IsDone }).ToList()
+        };
+
+        await context.TodoLists.ReplaceOneAsync(x => x.Id == objectId, entry, cancellationToken: cancellationToken);
 
         return ToModel(entry);
     }
@@ -53,6 +74,7 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
         OwnerId = entry.OwnerId,
         CreatedAt = entry.CreatedAt,
         UpdatedAt = entry.UpdatedAt,
-        SharedUserIds = entry.SharedUserIds
+        SharedUserIds = entry.SharedUserIds,
+        Items = entry.Items.Select(i => new TodoItem { Name = i.Name, IsDone = i.IsDone }).ToList()
     };
 }

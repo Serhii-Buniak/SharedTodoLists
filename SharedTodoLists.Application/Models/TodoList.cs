@@ -7,5 +7,6 @@ public record TodoList
     public required string OwnerId { get; init; }
     public required DateTime CreatedAt { get; init; }
     public required DateTime UpdatedAt { get; init; }
-    public required HashSet<string> SharedUserIds { get; init; }
+    public required IReadOnlySet<string> SharedUserIds { get; init; }
+    public required IReadOnlyList<TodoItem> Items { get; init; }
 }

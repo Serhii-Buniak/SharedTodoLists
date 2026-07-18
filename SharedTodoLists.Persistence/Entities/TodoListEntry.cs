@@ -13,4 +13,5 @@ public record TodoListEntry
     public required DateTime CreatedAt { get; init; } 
     public required DateTime UpdatedAt { get; set; }
     public required HashSet<string> SharedUserIds { get; init; } = [];
+    public required List<TodoItemEntry> Items { get; init; } = [];
 }

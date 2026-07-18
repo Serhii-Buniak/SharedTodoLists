@@ -93,6 +93,57 @@ public class TodoListServiceTests
         Assert.That(result.Name, Is.EqualTo(created.Name));
     }
 
+    // UpdateTodoListAsync
+
+    [Test]
+    public async Task UpdateTodoListAsync_WhenFoundAndAccessAllowed_ReturnsUpdatedTodoList()
+    {
+        // Arrange
+        var todoList = BuildTodoList();
+        var request = new UpdateTodoListRequest
+        {
+            Name = "Updated Name",
+            Items = [new TodoItemRequest { Name = "Task 1", IsDone = false }]
+        };
+        var updated = todoList with { Name = request.Name, Items = [new TodoItem { Name = "Task 1", IsDone = false }] };
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetByIdReturns(todoList);
+        _accessPolicy.SetupCanUpdateReturns(true);
+        _repository.SetupUpdateReturns(updated);
+
+        // Act
+        var result = await _service.UpdateTodoListAsync(todoList.Id, request);
+
+        // Assert
+        Assert.That(result.Name, Is.EqualTo("Updated Name"));
+        Assert.That(result.Items, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void UpdateTodoListAsync_WhenNotFound_ThrowsNotFoundException()
+    {
+        // Arrange
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetByIdReturns(null);
+
+        // Act & Assert
+        Assert.ThrowsAsync<NotFoundException>(() =>
+            _service.UpdateTodoListAsync("non-existent-id", new UpdateTodoListRequest { Name = "Name", Items = [] }));
+    }
+
+    [Test]
+    public void UpdateTodoListAsync_WhenAccessDenied_ThrowsForbiddenException()
+    {
+        // Arrange
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetByIdReturns(BuildTodoList());
+        _accessPolicy.SetupCanUpdateReturns(false);
+
+        // Act & Assert
+        Assert.ThrowsAsync<ForbiddenException>(() =>
+            _service.UpdateTodoListAsync("some-id", new UpdateTodoListRequest { Name = "Name", Items = [] }));
+    }
+
     // DeleteTodoListAsync
 
     [Test]
@@ -144,6 +195,7 @@ public class TodoListServiceTests
         OwnerId = ownerId,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
-        SharedUserIds = []
+        SharedUserIds = new HashSet<string>(),
+        Items = []
     };
 }

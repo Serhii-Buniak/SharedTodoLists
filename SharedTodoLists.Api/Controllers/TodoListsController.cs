@@ -34,9 +34,13 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateTodoList([FromRoute] string id)
+    public async Task<ActionResult<TodoListResponse>> UpdateTodoList(
+        [FromRoute] string id,
+        [FromBody] UpdateTodoListRequest request,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await todoListService.UpdateTodoListAsync(id, request, cancellationToken);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]

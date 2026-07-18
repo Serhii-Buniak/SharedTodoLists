@@ -45,6 +45,7 @@ public class TodoListAccessPolicyTests
         OwnerId = OwnerId,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
-        SharedUserIds = [SharedUserId]
+        SharedUserIds = new HashSet<string> { SharedUserId },
+        Items = []
     };
 }

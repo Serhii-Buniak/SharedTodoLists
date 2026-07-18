@@ -24,6 +24,15 @@ internal static class TodoListRepositoryMockExtensions
         return mock;
     }
 
+    internal static Mock<ITodoListRepository> SetupUpdateReturns(
+        this Mock<ITodoListRepository> mock,
+        TodoList todoList)
+    {
+        mock.Setup(r => r.UpdateAsync(It.IsAny<TodoList>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(todoList);
+        return mock;
+    }
+
     internal static Mock<ITodoListRepository> SetupDeleteCompletes(
         this Mock<ITodoListRepository> mock)
     {
