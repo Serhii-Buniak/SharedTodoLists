@@ -28,14 +28,10 @@ internal class TodoListService : ITodoListService
         var todoList = await _todoListRepository.GetByIdAsync(id, cancellationToken);
 
         if (todoList is null)
-        {
             throw new NotFoundException($"Todo list '{id}' not found.");
-        }
 
         if (!_accessPolicy.CanRead(todoList, currentUserId))
-        {
             throw new ForbiddenException("You do not have access to this todo list.");
-        }
 
         return ToResponse(todoList);
     }
@@ -70,7 +66,7 @@ internal class TodoListService : ITodoListService
             throw new NotFoundException($"Todo list '{id}' not found.");
 
         if (!_accessPolicy.CanDelete(todoList, currentUserId))
-            throw new ForbiddenException("Only the owner can delete this todo list.");
+            throw new ForbiddenException("You do not have access to this todo list.");
 
         await _todoListRepository.DeleteAsync(id, cancellationToken);
     }
