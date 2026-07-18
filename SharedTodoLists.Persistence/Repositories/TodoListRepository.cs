@@ -2,6 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using SharedTodoLists.Application.Abstractions;
 using SharedTodoLists.Application.DTOs.Responses;
+using SharedTodoLists.Application.Exceptions;
 using SharedTodoLists.Application.Models;
 using SharedTodoLists.Persistence.Data;
 using SharedTodoLists.Persistence.Entities;
@@ -72,33 +73,49 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
 
     public async Task<TodoList> UpdateAsync(TodoList todoList, CancellationToken cancellationToken = default)
     {
-        var objectId = ObjectId.Parse(todoList.Id);
+        var objectId = ParseId(todoList.Id);
         var entry = ToEntry(todoList, objectId);
-        await context.TodoLists.ReplaceOneAsync(x => x.Id == objectId, entry, cancellationToken: cancellationToken);
+        var result = await context.TodoLists.ReplaceOneAsync(x => x.Id == objectId, entry, cancellationToken: cancellationToken);
+
+        if (result.ModifiedCount == 0)
+            throw new NotFoundException($"Todo list '{todoList.Id}' not found.");
+
         return ToModel(entry);
     }
 
     public async Task<TodoList> AddUserAsync(string id, string userId, CancellationToken cancellationToken = default)
     {
-        var objectId = ObjectId.Parse(id);
+        var objectId = ParseId(id);
+
         var update = Builders<TodoListEntry>.Update.AddToSet(x => x.SharedUserIds, userId);
         var options = new FindOneAndUpdateOptions<TodoListEntry> { ReturnDocument = ReturnDocument.After };
         var entry = await context.TodoLists.FindOneAndUpdateAsync(x => x.Id == objectId, update, options, cancellationToken);
+
+        if (entry is null)
+            throw new NotFoundException($"Todo list '{id}' not found.");
+
         return ToModel(entry);
     }
 
     public async Task RemoveUserAsync(string id, string userId, CancellationToken cancellationToken = default)
     {
-        var objectId = ObjectId.Parse(id);
+        var objectId = ParseId(id);
+
         var update = Builders<TodoListEntry>.Update.Pull(x => x.SharedUserIds, userId);
         await context.TodoLists.UpdateOneAsync(x => x.Id == objectId, update, cancellationToken: cancellationToken);
     }
 
     public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
-        var objectId = ObjectId.Parse(id);
+        var objectId = ParseId(id);
+
         await context.TodoLists.DeleteOneAsync(x => x.Id == objectId, cancellationToken);
     }
+
+    private static ObjectId ParseId(string id) =>
+        ObjectId.TryParse(id, out var objectId)
+            ? objectId
+            : throw new NotFoundException($"Todo list '{id}' not found.");
 
     private static FilterDefinition<TodoListEntry> BuildAccessFilter(string userId, bool onlyOwned) =>
         onlyOwned
@@ -126,7 +143,7 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
         OwnerId = entry.OwnerId,
         CreatedAt = entry.CreatedAt,
         UpdatedAt = entry.UpdatedAt,
-        SharedUserIds = entry.SharedUserIds,
+        SharedUserIds = new HashSet<string>(entry.SharedUserIds),
         Items = entry.Items.Select(i => new TodoItem { Name = i.Name, IsDone = i.IsDone }).ToList()
     };
 }
