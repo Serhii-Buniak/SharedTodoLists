@@ -8,6 +8,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CLAUDE.md = CLAUDE.md
 		task.pdf = task.pdf
 		.github\workflows\ci.yml = .github\workflows\ci.yml
+		frontend\api\ApiClient.ts = frontend\api\ApiClient.ts
+		frontend\api\ApiError.ts = frontend\api\ApiError.ts
+		frontend\api\index.ts = frontend\api\index.ts
+		frontend\api\TodoListsApi.ts = frontend\api\TodoListsApi.ts
+		frontend\api\types.ts = frontend\api\types.ts
+		frontend\api\utils.ts = frontend\api\utils.ts
+		frontend\README.md = frontend\README.md
+		frontend\tsconfig.json = frontend\tsconfig.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedTodoLists.Application", "SharedTodoLists.Application\SharedTodoLists.Application.csproj", "{6610FBA6-F2AB-4871-AABF-7262F8BDB79B}"
