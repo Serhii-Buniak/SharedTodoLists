@@ -40,6 +40,12 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
         return ToModel(entry);
     }
 
+    public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var objectId = ObjectId.Parse(id);
+        await context.TodoLists.DeleteOneAsync(x => x.Id == objectId, cancellationToken);
+    }
+
     private static TodoList ToModel(TodoListEntry entry) => new()
     {
         Id = entry.Id.ToString(),

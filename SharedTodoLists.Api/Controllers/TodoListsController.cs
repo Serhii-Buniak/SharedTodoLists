@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedTodoLists.Api.Attributes;
 using SharedTodoLists.Application.DTOs.Requests;
+using SharedTodoLists.Application.DTOs.Responses;
 using SharedTodoLists.Application.Services;
 
 namespace SharedTodoLists.Api.Controllers;
@@ -19,7 +20,7 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetTodoList([FromRoute] string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<TodoListResponse>> GetTodoList([FromRoute] string id, CancellationToken cancellationToken)
     {
         var result = await todoListService.GetTodoListAsync(id, cancellationToken);
         return Ok(result);
@@ -39,9 +40,10 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteTodoList([FromRoute] string id)
+    public async Task<IActionResult> DeleteTodoList([FromRoute] string id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await todoListService.DeleteTodoListAsync(id, cancellationToken);
+        return NoContent();
     }
 
     [HttpGet("{id}/users")]

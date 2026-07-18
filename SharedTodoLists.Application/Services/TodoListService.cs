@@ -7,23 +7,33 @@ using SharedTodoLists.Application.Policies;
 
 namespace SharedTodoLists.Application.Services;
 
-internal class TodoListService(
-    ITodoListRepository todoListRepository,
-    ICurrentUserProvider currentUserProvider,
-    ITodoListAccessPolicy accessPolicy) : ITodoListService
+internal class TodoListService : ITodoListService
 {
+    private readonly ITodoListRepository _todoListRepository;
+    private readonly ICurrentUserProvider _currentUserProvider;
+    private readonly ITodoListAccessPolicy _accessPolicy;
+
+    public TodoListService(ITodoListRepository todoListRepository,
+        ICurrentUserProvider currentUserProvider,
+        ITodoListAccessPolicy accessPolicy)
+    {
+        _todoListRepository = todoListRepository;
+        _currentUserProvider = currentUserProvider;
+        _accessPolicy = accessPolicy;
+    }
+
     public async Task<TodoListResponse> GetTodoListAsync(string id, CancellationToken cancellationToken = default)
     {
-        var currentUserId = currentUserProvider.GetUserId();
+        var currentUserId = _currentUserProvider.GetUserId();
 
-        var todoList = await todoListRepository.GetByIdAsync(id, cancellationToken);
+        var todoList = await _todoListRepository.GetByIdAsync(id, cancellationToken);
 
         if (todoList is null)
         {
             throw new NotFoundException($"Todo list '{id}' not found.");
         }
 
-        if (!accessPolicy.CanAccess(todoList, currentUserId))
+        if (!_accessPolicy.CanAccess(todoList, currentUserId))
         {
             throw new ForbiddenException("You do not have access to this todo list.");
         }
@@ -33,7 +43,7 @@ internal class TodoListService(
 
     public async Task<TodoListResponse> CreateTodoListAsync(CreateTodoListRequest request, CancellationToken cancellationToken = default)
     {
-        var currentUserId = currentUserProvider.GetUserId();
+        var currentUserId = _currentUserProvider.GetUserId();
         var now = DateTime.UtcNow;
 
         var todoList = new TodoList
@@ -46,9 +56,24 @@ internal class TodoListService(
             SharedUserIds = []
         };
 
-        var created = await todoListRepository.CreateAsync(todoList, cancellationToken);
+        var created = await _todoListRepository.CreateAsync(todoList, cancellationToken);
 
         return ToResponse(created);
+    }
+
+    public async Task DeleteTodoListAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserProvider.GetUserId();
+
+        var todoList = await _todoListRepository.GetByIdAsync(id, cancellationToken);
+
+        if (todoList is null)
+            throw new NotFoundException($"Todo list '{id}' not found.");
+
+        if (!_accessPolicy.IsOwner(todoList, currentUserId))
+            throw new ForbiddenException("Only the owner can delete this todo list.");
+
+        await _todoListRepository.DeleteAsync(id, cancellationToken);
     }
 
     private static TodoListResponse ToResponse(TodoList todoList) =>

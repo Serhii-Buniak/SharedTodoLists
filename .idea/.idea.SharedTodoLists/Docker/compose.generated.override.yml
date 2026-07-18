@@ -1,0 +1,21 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  api:
+    build:
+      context: "C:\\Users\\bunia\\RiderProjects\\SharedTodoLists"
+      dockerfile: "SharedTodoLists.Api/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/SharedTodoLists.Api.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "sharedtodolists.api:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\bunia\\RiderProjects\\SharedTodoLists\\SharedTodoLists.Api:/app:rw"
+    - "C:\\Users\\bunia\\RiderProjects\\SharedTodoLists:/src:rw"
+    - "C:\\Users\\bunia\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"

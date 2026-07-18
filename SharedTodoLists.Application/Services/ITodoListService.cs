@@ -7,4 +7,5 @@ public interface ITodoListService
 {
     Task<TodoListResponse> GetTodoListAsync(string id, CancellationToken cancellationToken = default);
     Task<TodoListResponse> CreateTodoListAsync(CreateTodoListRequest request, CancellationToken cancellationToken = default);
+    Task DeleteTodoListAsync(string id, CancellationToken cancellationToken = default);
 }

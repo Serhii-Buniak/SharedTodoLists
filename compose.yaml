@@ -1,13 +1,43 @@
 ﻿services:
-  sharedtodolists.api:
-    image: sharedtodolists.api
+  api:
     build:
       context: .
       dockerfile: SharedTodoLists.Api/Dockerfile
+    container_name: shared-todo-lists-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - MongoDb__ConnectionString=mongodb://admin:password@mongo:27017
+      - MongoDb__DatabaseName=TodoLists
+    depends_on:
+      mongo:
+        condition: service_healthy
 
-  sharedtodolists.application:
-    image: sharedtodolists.application
-    build:
-      context: .
-      dockerfile: SharedTodoLists.Application/Dockerfile
+  mongo:
+    image: mongo:8.0
+    container_name: dictionary-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--username", "admin",
+          "--password", "password",
+          "--eval", "db.adminCommand('ping')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
+volumes:
+  mongo-data:
