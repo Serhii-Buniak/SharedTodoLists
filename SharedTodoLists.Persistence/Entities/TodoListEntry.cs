@@ -8,7 +8,7 @@ public record TodoListEntry
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public ObjectId Id { get; init; }
-    public string? OwnerId { get; init; }
+    public required string OwnerId { get; init; }
     public required string Name { get; init; }
     public required DateTime CreatedAt { get; init; } 
     public required DateTime UpdatedAt { get; set; }

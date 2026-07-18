@@ -1,8 +1,10 @@
 namespace SharedTodoLists.Application.DTOs.Responses;
 
-public record TodoListResponse(
-    string Id,
-    string Name,
-    string OwnerId,
-    DateTime CreatedAt,
-    IReadOnlyCollection<string> SharedUserIds);
+public record TodoListResponse
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+    public required string OwnerId { get; init; }
+    public required DateTime CreatedAt { get; init; }
+    public required IReadOnlyCollection<string> SharedUserIds { get; init; }
+}

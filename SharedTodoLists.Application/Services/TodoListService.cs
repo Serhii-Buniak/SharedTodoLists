@@ -76,6 +76,12 @@ internal class TodoListService : ITodoListService
         await _todoListRepository.DeleteAsync(id, cancellationToken);
     }
 
-    private static TodoListResponse ToResponse(TodoList todoList) =>
-        new(todoList.Id, todoList.Name, todoList.OwnerId, todoList.CreatedAt, todoList.SharedUserIds);
+    private static TodoListResponse ToResponse(TodoList todoList) => new()
+    {
+        Id = todoList.Id,
+        Name = todoList.Name,
+        OwnerId = todoList.OwnerId,
+        CreatedAt = todoList.CreatedAt,
+        SharedUserIds = todoList.SharedUserIds
+    };
 }

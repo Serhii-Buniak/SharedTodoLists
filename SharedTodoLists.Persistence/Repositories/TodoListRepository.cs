@@ -50,7 +50,7 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
     {
         Id = entry.Id.ToString(),
         Name = entry.Name,
-        OwnerId = entry.OwnerId ?? string.Empty,
+        OwnerId = entry.OwnerId,
         CreatedAt = entry.CreatedAt,
         UpdatedAt = entry.UpdatedAt,
         SharedUserIds = entry.SharedUserIds

@@ -1,6 +1,6 @@
 namespace SharedTodoLists.Application.Models;
 
-public class TodoList
+public record TodoList
 {
     public required string Id { get; init; }
     public required string Name { get; init; }
