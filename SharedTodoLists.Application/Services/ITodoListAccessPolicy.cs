@@ -1,9 +1,11 @@
 using SharedTodoLists.Application.Models;
 
-namespace SharedTodoLists.Application.Policies;
+namespace SharedTodoLists.Application.Services;
 
 internal interface ITodoListAccessPolicy
 {
-    bool CanAccess(TodoList todoList, string userId);
-    bool IsOwner(TodoList todoList, string userId);
+    bool CanRead(TodoList todoList, string userId);
+    bool CanUpdate(TodoList todoList, string userId);
+    bool CanDelete(TodoList todoList, string userId);
+    bool CanManageUsers(TodoList todoList, string userId);
 }

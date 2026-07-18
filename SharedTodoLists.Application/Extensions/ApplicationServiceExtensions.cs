@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using SharedTodoLists.Application.Policies;
 using SharedTodoLists.Application.Services;
 
 namespace SharedTodoLists.Application.Extensions;

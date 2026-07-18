@@ -3,7 +3,6 @@ using SharedTodoLists.Application.DTOs.Requests;
 using SharedTodoLists.Application.DTOs.Responses;
 using SharedTodoLists.Application.Exceptions;
 using SharedTodoLists.Application.Models;
-using SharedTodoLists.Application.Policies;
 
 namespace SharedTodoLists.Application.Services;
 
@@ -33,7 +32,7 @@ internal class TodoListService : ITodoListService
             throw new NotFoundException($"Todo list '{id}' not found.");
         }
 
-        if (!_accessPolicy.CanAccess(todoList, currentUserId))
+        if (!_accessPolicy.CanRead(todoList, currentUserId))
         {
             throw new ForbiddenException("You do not have access to this todo list.");
         }
@@ -70,7 +69,7 @@ internal class TodoListService : ITodoListService
         if (todoList is null)
             throw new NotFoundException($"Todo list '{id}' not found.");
 
-        if (!_accessPolicy.IsOwner(todoList, currentUserId))
+        if (!_accessPolicy.CanDelete(todoList, currentUserId))
             throw new ForbiddenException("Only the owner can delete this todo list.");
 
         await _todoListRepository.DeleteAsync(id, cancellationToken);
