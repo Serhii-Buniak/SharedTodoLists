@@ -13,7 +13,7 @@ public class HeaderProvider(IHttpContextAccessor httpContextAccessor) : ICurrent
 
         if (string.IsNullOrWhiteSpace(userId))
         {
-            throw new RequestContextException("Required header 'User-Id' is missing or empty.");
+            throw new BadRequestException("Required header 'User-Id' is missing or empty.");
         }
 
         return userId;

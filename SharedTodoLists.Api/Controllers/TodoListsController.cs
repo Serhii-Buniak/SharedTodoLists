@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedTodoLists.Api.Attributes;
+using SharedTodoLists.Application.DTOs.Requests;
 using SharedTodoLists.Application.Services;
 
 namespace SharedTodoLists.Api.Controllers;
@@ -9,13 +10,6 @@ namespace SharedTodoLists.Api.Controllers;
 [RequireUserIdHeader]
 public class TodoListsController(ITodoListService todoListService) : ControllerBase
 {
-    [HttpGet("status")]
-    public async Task<IActionResult> GetStatus()
-    {
-        var result = await todoListService.GetStatusAsync();
-        return Ok(result);
-    }
-
     [HttpGet]
     public IActionResult GetTodoLists(
         [FromQuery] int page = 1,
@@ -25,15 +19,17 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetTodoList([FromRoute] string id)
+    public async Task<IActionResult> GetTodoList([FromRoute] string id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await todoListService.GetTodoListAsync(id, cancellationToken);
+        return Ok(result);
     }
 
     [HttpPost]
-    public IActionResult CreateTodoList()
+    public async Task<IActionResult> CreateTodoList([FromBody] CreateTodoListRequest request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await todoListService.CreateTodoListAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetTodoList), new { id = result.Id }, result);
     }
 
     [HttpPut("{id}")]

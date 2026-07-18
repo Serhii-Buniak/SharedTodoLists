@@ -13,7 +13,7 @@ public class RequireUserIdHeaderAttribute : Attribute, IActionFilter
 
         if (string.IsNullOrWhiteSpace(userId))
         {
-            throw new RequestContextException("Required header 'User-Id' is missing or empty.");
+            throw new BadRequestException("Required header 'User-Id' is missing or empty.");
         }
     }
 

@@ -1,3 +1,9 @@
-namespace SharedTodoLists.Application.Abstractions.Repositories;
+using SharedTodoLists.Application.Models;
 
-public interface ITodoListRepository;
+namespace SharedTodoLists.Application.Abstractions;
+
+public interface ITodoListRepository
+{
+    Task<TodoList?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+    Task<TodoList> CreateAsync(TodoList todoList, CancellationToken cancellationToken = default);
+}

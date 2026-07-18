@@ -1,8 +1,10 @@
 using Microsoft.OpenApi.Models;
+using SharedTodoLists.Api.Extensions;
 using SharedTodoLists.Api.Middleware;
 using SharedTodoLists.Api.Services;
 using SharedTodoLists.Application.Abstractions;
 using SharedTodoLists.Application.Extensions;
+using SharedTodoLists.Persistence.Configs;
 using SharedTodoLists.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +39,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, HeaderProvider>();
 builder.Services.AddApplication();
-builder.Services.AddPersistence();
+
+var mongoOptions = builder.Configuration.GetRequiredOptions<MongoDbOptions>("MongoDb");
+builder.Services.AddPersistence(mongoOptions);
 
 var app = builder.Build();
 
@@ -52,5 +56,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+await app.Services.InitializeDataAsync();
 
 app.Run();
