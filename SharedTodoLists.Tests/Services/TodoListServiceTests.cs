@@ -164,46 +164,49 @@ public class TodoListServiceTests
     // CreateTodoListAsync
 
     [Test]
-    public async Task CreateTodoListAsync_WhenCalled_ReturnsTodoListWithCurrentUserAsOwner()
+    [TestCase("My List", TestName = "Normalized Name")]
+    [TestCase(" My List ", TestName = "Not Normalized Name")]
+    public async Task CreateTodoListAsync_WhenCalled_ReturnsTodoListWithCurrentUserAsOwner(string requestName)
     {
         // Arrange
         const string currentUserId = "user-1";
-        var request = new CreateTodoListRequest { Name = "My List" };
-        var created = BuildTodoList(ownerId: currentUserId);
+        var request = new CreateTodoListRequest { Name = requestName };
         _currentUserProvider.SetupGetUserIdReturns(currentUserId);
-        _repository.SetupCreateReturns(created);
+        _repository.SetupCreateReturns();
 
         // Act
         var result = await _service.CreateTodoListAsync(request);
 
         // Assert
         Assert.That(result.OwnerId, Is.EqualTo(currentUserId));
-        Assert.That(result.Name, Is.EqualTo(created.Name));
+        Assert.That(result.Name, Is.EqualTo("My List"));
     }
 
     // UpdateTodoListAsync
 
     [Test]
-    public async Task UpdateTodoListAsync_WhenFoundAndAccessAllowed_ReturnsUpdatedTodoList()
+    [TestCase("Updated Name", "Task 1", TestName = "Normalized Name")]
+    [TestCase(" Updated Name ", " Task 1 ", TestName = "Not Normalized Name")]
+    public async Task UpdateTodoListAsync_WhenFoundAndAccessAllowed_ReturnsUpdatedTodoList(string name, string taskName)
     {
         // Arrange
         var todoList = BuildTodoList();
         var request = new UpdateTodoListRequest
         {
-            Name = "Updated Name",
-            Items = [new TodoItemRequest { Name = "Task 1", IsDone = false }]
+            Name = name,
+            Items = [new TodoItemRequest { Name = taskName , IsDone = false }]
         };
-        var updated = todoList with { Name = request.Name, Items = [new TodoItem { Name = "Task 1", IsDone = false }] };
         _currentUserProvider.SetupGetUserIdReturns("user-1");
         _repository.SetupGetByIdReturns(todoList);
         _accessPolicy.SetupCanUpdateReturns(true);
-        _repository.SetupUpdateReturns(updated);
+        _repository.SetupUpdateReturns();
 
         // Act
         var result = await _service.UpdateTodoListAsync(todoList.Id, request);
 
         // Assert
         Assert.That(result.Name, Is.EqualTo("Updated Name"));
+        Assert.That(result.Items[0].Name, Is.EqualTo("Task 1"));
         Assert.That(result.Items, Has.Count.EqualTo(1));
     }
 

@@ -39,19 +39,38 @@ internal static class TodoListRepositoryMockExtensions
 
     internal static Mock<ITodoListRepository> SetupCreateReturns(
         this Mock<ITodoListRepository> mock,
-        TodoList todoList)
+        TodoList? todoList = null)
     {
-        mock.Setup(r => r.CreateAsync(It.IsAny<TodoList>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(todoList);
+        if (todoList == null)
+        {
+            mock.Setup(r => r.CreateAsync(It.IsAny<TodoList>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((TodoList t, CancellationToken _) => t);
+        }
+        else
+        {
+            mock.Setup(r => r.CreateAsync(It.IsAny<TodoList>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(todoList);
+        }
+
         return mock;
     }
 
     internal static Mock<ITodoListRepository> SetupUpdateReturns(
         this Mock<ITodoListRepository> mock,
-        TodoList todoList)
+        TodoList? todoList = null)
     {
-        mock.Setup(r => r.UpdateAsync(It.IsAny<TodoList>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(todoList);
+        if (todoList == null)
+        {
+            mock
+                .Setup(x => x.UpdateAsync(It.IsAny<TodoList>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((TodoList t, CancellationToken _) => t);
+        }
+        else
+        {
+            mock.Setup(r => r.UpdateAsync(It.IsAny<TodoList>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(todoList);
+        }
+        
         return mock;
     }
 
