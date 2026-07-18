@@ -1,11 +1,33 @@
 using Moq;
 using SharedTodoLists.Application.Abstractions;
+using SharedTodoLists.Application.DTOs.Responses;
 using SharedTodoLists.Application.Models;
 
 namespace SharedTodoLists.Tests.Mocks;
 
 internal static class TodoListRepositoryMockExtensions
 {
+    internal static Mock<ITodoListRepository> SetupGetCursorPageReturns(
+        this Mock<ITodoListRepository> mock,
+        IReadOnlyList<TodoList> items,
+        bool hasMore = false,
+        string? nextCursor = null)
+    {
+        mock.Setup(r => r.GetCursorPageAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CursorResponse<TodoList> { Items = items, HasMore = hasMore, NextCursor = nextCursor });
+        return mock;
+    }
+
+    internal static Mock<ITodoListRepository> SetupGetPageReturns(
+        this Mock<ITodoListRepository> mock,
+        IReadOnlyList<TodoList> items,
+        long total = 0)
+    {
+        mock.Setup(r => r.GetPageAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BatchResponse<TodoList> { Items = items, Total = total });
+        return mock;
+    }
+
     internal static Mock<ITodoListRepository> SetupGetByIdReturns(
         this Mock<ITodoListRepository> mock,
         TodoList? todoList)

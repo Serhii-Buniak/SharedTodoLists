@@ -5,6 +5,8 @@ namespace SharedTodoLists.Application.Services;
 
 public interface ITodoListService
 {
+    Task<PagedResponse<TodoListResponse>> GetTodoListsAsync(int page, int pageSize, bool onlyOwned = false, CancellationToken cancellationToken = default);
+    Task<CursorResponse<TodoListResponse>> GetTodoListsStreamAsync(string? cursor, int limit, bool onlyOwned = false, CancellationToken cancellationToken = default);
     Task<TodoListResponse> GetTodoListAsync(string id, CancellationToken cancellationToken = default);
     Task<TodoListResponse> CreateTodoListAsync(CreateTodoListRequest request, CancellationToken cancellationToken = default);
     Task<TodoListResponse> UpdateTodoListAsync(string id, UpdateTodoListRequest request, CancellationToken cancellationToken = default);

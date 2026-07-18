@@ -21,6 +21,35 @@ internal class TodoListService : ITodoListService
         _accessPolicy = accessPolicy;
     }
 
+    public async Task<CursorResponse<TodoListResponse>> GetTodoListsStreamAsync(string? cursor, int limit, bool onlyOwned = false, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserProvider.GetUserId();
+
+        var page = await _todoListRepository.GetCursorPageAsync(currentUserId, cursor, limit, onlyOwned, cancellationToken);
+
+        return new CursorResponse<TodoListResponse>
+        {
+            Items = page.Items.Select(ToResponse).ToList(),
+            NextCursor = page.NextCursor,
+            HasMore = page.HasMore
+        };
+    }
+
+    public async Task<PagedResponse<TodoListResponse>> GetTodoListsAsync(int page, int pageSize, bool onlyOwned = false, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserProvider.GetUserId();
+
+        var batch = await _todoListRepository.GetPageAsync(currentUserId, page, pageSize, onlyOwned, cancellationToken);
+
+        return new PagedResponse<TodoListResponse>
+        {
+            Items = batch.Items.Select(ToResponse).ToList(),
+            Total = batch.Total,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
     public async Task<TodoListResponse> GetTodoListAsync(string id, CancellationToken cancellationToken = default)
     {
         var currentUserId = _currentUserProvider.GetUserId();

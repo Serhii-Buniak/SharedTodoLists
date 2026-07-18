@@ -13,11 +13,27 @@ namespace SharedTodoLists.Api.Controllers;
 public class TodoListsController(ITodoListService todoListService) : ControllerBase
 {
     [HttpGet]
-    public IActionResult GetTodoLists(
+    [ProducesResponseType(typeof(PagedResponse<TodoListResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<TodoListResponse>>> GetTodoLists(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
+        [FromQuery] int pageSize = 20,
+        [FromQuery] bool onlyOwned = false,
+        CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var result = await todoListService.GetTodoListsAsync(page, pageSize, onlyOwned, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("stream")]
+    [ProducesResponseType(typeof(CursorResponse<TodoListResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<CursorResponse<TodoListResponse>>> GetTodoListsStream(
+        [FromQuery] string? cursor = null,
+        [FromQuery] int limit = 20,
+        [FromQuery] bool onlyOwned = false,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await todoListService.GetTodoListsStreamAsync(cursor, limit, onlyOwned, cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

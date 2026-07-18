@@ -29,6 +29,89 @@ public class TodoListServiceTests
             _accessPolicy.Object);
     }
 
+    // GetTodoListsStreamAsync
+
+    [Test]
+    public async Task GetTodoListsStreamAsync_WhenCalled_ReturnsMappedItems()
+    {
+        // Arrange
+        var todoLists = new List<TodoList> { BuildTodoList(), BuildTodoList() };
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetCursorPageReturns(todoLists, hasMore: false);
+
+        // Act
+        var result = await _service.GetTodoListsStreamAsync(cursor: null, limit: 20);
+
+        // Assert
+        Assert.That(result.Items, Has.Count.EqualTo(2));
+        Assert.That(result.HasMore, Is.False);
+        Assert.That(result.NextCursor, Is.Null);
+    }
+
+    [Test]
+    public async Task GetTodoListsStreamAsync_WhenHasMore_ReturnsNextCursor()
+    {
+        // Arrange
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetCursorPageReturns([BuildTodoList()], hasMore: true, nextCursor: "cursor-abc");
+
+        // Act
+        var result = await _service.GetTodoListsStreamAsync(cursor: null, limit: 1);
+
+        // Assert
+        Assert.That(result.HasMore, Is.True);
+        Assert.That(result.NextCursor, Is.EqualTo("cursor-abc"));
+    }
+
+    // GetTodoListsAsync
+
+    [Test]
+    public async Task GetTodoListsAsync_WhenCalled_ReturnsPagedResult()
+    {
+        // Arrange
+        var todoLists = new List<TodoList> { BuildTodoList(), BuildTodoList() };
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetPageReturns(todoLists, total: 5);
+
+        // Act
+        var result = await _service.GetTodoListsAsync(page: 1, pageSize: 2);
+
+        // Assert
+        Assert.That(result.Items, Has.Count.EqualTo(2));
+        Assert.That(result.Total, Is.EqualTo(5));
+        Assert.That(result.Page, Is.EqualTo(1));
+        Assert.That(result.PageSize, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetTodoListsAsync_WhenNoLists_ReturnsEmptyPage()
+    {
+        // Arrange
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetPageReturns([], total: 0);
+
+        // Act
+        var result = await _service.GetTodoListsAsync(page: 1, pageSize: 20);
+
+        // Assert
+        Assert.That(result.Items, Is.Empty);
+        Assert.That(result.Total, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GetTodoListsAsync_WhenOnlyOwned_PassesFlagToRepository()
+    {
+        // Arrange
+        _currentUserProvider.SetupGetUserIdReturns("user-1");
+        _repository.SetupGetPageReturns([], total: 0);
+
+        // Act
+        await _service.GetTodoListsAsync(page: 1, pageSize: 20, onlyOwned: true);
+
+        // Assert
+        _repository.Verify(r => r.GetPageAsync("user-1", 1, 20, true, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     // GetTodoListAsync
 
     [Test]
