@@ -9,6 +9,7 @@ namespace SharedTodoLists.Api.Controllers;
 [ApiController]
 [Route("api/todo-lists")]
 [RequireUserIdHeader]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
 public class TodoListsController(ITodoListService todoListService) : ControllerBase
 {
     [HttpGet]
@@ -20,13 +21,17 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TodoListResponse>> GetTodoList([FromRoute] string id, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(TodoListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetTodoList([FromRoute] string id, CancellationToken cancellationToken)
     {
         var result = await todoListService.GetTodoListAsync(id, cancellationToken);
         return Ok(result);
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(TodoListResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateTodoList([FromBody] CreateTodoListRequest request, CancellationToken cancellationToken)
     {
         var result = await todoListService.CreateTodoListAsync(request, cancellationToken);
@@ -34,7 +39,10 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<TodoListResponse>> UpdateTodoList(
+    [ProducesResponseType(typeof(TodoListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UpdateTodoList(
         [FromRoute] string id,
         [FromBody] UpdateTodoListRequest request,
         CancellationToken cancellationToken)
@@ -44,6 +52,9 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DeleteTodoList([FromRoute] string id, CancellationToken cancellationToken)
     {
         await todoListService.DeleteTodoListAsync(id, cancellationToken);

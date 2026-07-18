@@ -12,9 +12,7 @@ public class RequireUserIdHeaderAttribute : Attribute, IActionFilter
         var userId = context.HttpContext.Request.Headers[HeaderProvider.UserIdHeaderName].FirstOrDefault();
 
         if (string.IsNullOrWhiteSpace(userId))
-        {
             throw new BadRequestException("Required header 'User-Id' is missing or empty.");
-        }
     }
 
     public void OnActionExecuted(ActionExecutedContext context) { }
