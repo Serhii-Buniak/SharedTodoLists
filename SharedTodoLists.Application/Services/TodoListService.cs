@@ -73,7 +73,7 @@ internal class TodoListService : ITodoListService
         var todoList = new TodoList
         {
             Id = string.Empty,
-            Name = request.Name,
+            Name = Normalize(request.Name),
             OwnerId = currentUserId,
             CreatedAt = now,
             UpdatedAt = now,
@@ -99,8 +99,12 @@ internal class TodoListService : ITodoListService
 
         var updated = todoList with
         {
-            Name = request.Name,
-            Items = request.Items.Select(i => new TodoItem { Name = i.Name, IsDone = i.IsDone }).ToList(),
+            Name = Normalize(request.Name),
+            Items = request.Items.Select(i => new TodoItem
+            {
+                Name = Normalize(i.Name),
+                IsDone = i.IsDone
+            }).ToList(),
             UpdatedAt = DateTime.UtcNow
         };
 
@@ -178,6 +182,8 @@ internal class TodoListService : ITodoListService
 
         await _todoListRepository.DeleteAsync(id, cancellationToken);
     }
+    
+    private static string Normalize(string value) => value.Trim();
 
     private static TodoListUsersResponse ToUsersResponse(TodoList todoList) => new()
     {
