@@ -35,22 +35,20 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
         };
     }
 
-    public async Task<BatchResponse<TodoList>> GetPageAsync(string userId, int page, int pageSize, bool onlyOwned = false, CancellationToken cancellationToken = default)
+    public async Task<BatchResponse<TodoListSummary>> GetPageAsync(string userId, int page, int pageSize, bool onlyOwned = false, CancellationToken cancellationToken = default)
     {
         var filter = BuildAccessFilter(userId, onlyOwned);
 
         var total = await context.TodoLists.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
-        var entries = await context.TodoLists
+        var items = await context.TodoLists
             .Find(filter)
+            .SortByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Limit(pageSize)
+            .Project(x => new TodoListSummary { Id = x.Id.ToString(), Name = x.Name })
             .ToListAsync(cancellationToken);
 
-        return new BatchResponse<TodoList>
-        {
-            Items = entries.Select(ToModel).ToList(),
-            Total = total
-        };
+        return new BatchResponse<TodoListSummary> { Items = items, Total = total };
     }
 
     public async Task<TodoList?> GetByIdAsync(string id, CancellationToken cancellationToken = default)

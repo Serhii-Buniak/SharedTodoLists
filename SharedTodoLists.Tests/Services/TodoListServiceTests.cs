@@ -1,6 +1,7 @@
 using Moq;
 using SharedTodoLists.Application.Abstractions;
 using SharedTodoLists.Application.DTOs.Requests;
+using SharedTodoLists.Application.DTOs.Responses;
 using SharedTodoLists.Application.Exceptions;
 using SharedTodoLists.Application.Models;
 using SharedTodoLists.Application.Services;
@@ -69,9 +70,13 @@ public class TodoListServiceTests
     public async Task GetTodoListsAsync_WhenCalled_ReturnsPagedResult()
     {
         // Arrange
-        var todoLists = new List<TodoList> { BuildTodoList(), BuildTodoList() };
+        var summaries = new List<TodoListSummary>
+        {
+            new() { Id = "id-1", Name = "List 1" },
+            new() { Id = "id-2", Name = "List 2" }
+        };
         _currentUserProvider.SetupGetUserIdReturns("user-1");
-        _repository.SetupGetPageReturns(todoLists, total: 5);
+        _repository.SetupGetPageReturns(summaries, total: 5);
 
         // Act
         var result = await _service.GetTodoListsAsync(page: 1, pageSize: 2);

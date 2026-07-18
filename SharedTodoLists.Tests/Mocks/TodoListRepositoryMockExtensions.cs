@@ -20,11 +20,11 @@ internal static class TodoListRepositoryMockExtensions
 
     internal static Mock<ITodoListRepository> SetupGetPageReturns(
         this Mock<ITodoListRepository> mock,
-        IReadOnlyList<TodoList> items,
+        IReadOnlyList<TodoListSummary> items,
         long total = 0)
     {
         mock.Setup(r => r.GetPageAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new BatchResponse<TodoList> { Items = items, Total = total });
+            .ReturnsAsync(new BatchResponse<TodoListSummary> { Items = items, Total = total });
         return mock;
     }
 

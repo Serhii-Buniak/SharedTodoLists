@@ -13,8 +13,8 @@ namespace SharedTodoLists.Api.Controllers;
 public class TodoListsController(ITodoListService todoListService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<TodoListResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResponse<TodoListResponse>>> GetTodoLists(
+    [ProducesResponseType(typeof(PagedResponse<TodoListSummary>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<TodoListSummary>>> GetTodoLists(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] bool onlyOwned = false,

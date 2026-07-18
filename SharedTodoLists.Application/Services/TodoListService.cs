@@ -35,15 +35,15 @@ internal class TodoListService : ITodoListService
         };
     }
 
-    public async Task<PagedResponse<TodoListResponse>> GetTodoListsAsync(int page, int pageSize, bool onlyOwned = false, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<TodoListSummary>> GetTodoListsAsync(int page, int pageSize, bool onlyOwned = false, CancellationToken cancellationToken = default)
     {
         var currentUserId = _currentUserProvider.GetUserId();
 
         var batch = await _todoListRepository.GetPageAsync(currentUserId, page, pageSize, onlyOwned, cancellationToken);
 
-        return new PagedResponse<TodoListResponse>
+        return new PagedResponse<TodoListSummary>
         {
-            Items = batch.Items.Select(ToResponse).ToList(),
+            Items = batch.Items,
             Total = batch.Total,
             Page = page,
             PageSize = pageSize
