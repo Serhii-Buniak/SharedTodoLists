@@ -132,7 +132,7 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
         OwnerId = todoList.OwnerId,
         CreatedAt = todoList.CreatedAt,
         UpdatedAt = todoList.UpdatedAt,
-        SharedUserIds = new HashSet<string>(todoList.SharedUserIds),
+        SharedUserIds = [..todoList.SharedUserIds],
         Items = todoList.Items.Select(i => new TodoItemEntry { Name = i.Name, IsDone = i.IsDone }).ToList()
     };
 

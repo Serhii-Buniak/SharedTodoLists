@@ -2,6 +2,7 @@ using SharedTodoLists.Application.Abstractions;
 using SharedTodoLists.Application.DTOs.Requests;
 using SharedTodoLists.Application.DTOs.Responses;
 using SharedTodoLists.Application.Exceptions;
+using SharedTodoLists.Application.Extensions;
 using SharedTodoLists.Application.Models;
 
 namespace SharedTodoLists.Application.Services;
@@ -59,8 +60,7 @@ internal class TodoListService : ITodoListService
         if (todoList is null)
             throw new NotFoundException($"Todo list '{id}' not found.");
 
-        if (!_accessPolicy.CanRead(todoList, currentUserId))
-            throw new ForbiddenException("You do not have access to this todo list.");
+        _accessPolicy.EnsureCanRead(todoList, currentUserId);
 
         return ToResponse(todoList);
     }
@@ -95,8 +95,7 @@ internal class TodoListService : ITodoListService
         if (todoList is null)
             throw new NotFoundException($"Todo list '{id}' not found.");
 
-        if (!_accessPolicy.CanUpdate(todoList, currentUserId))
-            throw new ForbiddenException("You do not have access to this todo list.");
+        _accessPolicy.EnsureCanUpdate(todoList, currentUserId);
 
         var updated = todoList with
         {
@@ -119,8 +118,7 @@ internal class TodoListService : ITodoListService
         if (todoList is null)
             throw new NotFoundException($"Todo list '{id}' not found.");
 
-        if (!_accessPolicy.CanRead(todoList, currentUserId))
-            throw new ForbiddenException("You do not have access to this todo list.");
+        _accessPolicy.EnsureCanRead(todoList, currentUserId);
 
         return ToUsersResponse(todoList);
     }
@@ -134,8 +132,7 @@ internal class TodoListService : ITodoListService
         if (todoList is null)
             throw new NotFoundException($"Todo list '{id}' not found.");
 
-        if (!_accessPolicy.CanManageUsers(todoList, currentUserId))
-            throw new ForbiddenException("You do not have access to this todo list.");
+        _accessPolicy.EnsureCanManageUsers(todoList, currentUserId);
 
         if (request.UserId == todoList.OwnerId)
             throw new BadRequestException("Cannot add the owner as a shared user.");
@@ -157,8 +154,7 @@ internal class TodoListService : ITodoListService
         if (todoList is null)
             throw new NotFoundException($"Todo list '{id}' not found.");
 
-        if (!_accessPolicy.CanManageUsers(todoList, currentUserId))
-            throw new ForbiddenException("You do not have access to this todo list.");
+        _accessPolicy.EnsureCanManageUsers(todoList, currentUserId);
 
         if (userId == todoList.OwnerId)
             throw new BadRequestException("Cannot remove the owner from the todo list.");
@@ -178,8 +174,7 @@ internal class TodoListService : ITodoListService
         if (todoList is null)
             throw new NotFoundException($"Todo list '{id}' not found.");
 
-        if (!_accessPolicy.CanDelete(todoList, currentUserId))
-            throw new ForbiddenException("You do not have access to this todo list.");
+        _accessPolicy.EnsureCanDelete(todoList, currentUserId);
 
         await _todoListRepository.DeleteAsync(id, cancellationToken);
     }
