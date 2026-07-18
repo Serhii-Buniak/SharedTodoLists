@@ -10,5 +10,7 @@ public interface ITodoListRepository
     Task<TodoList?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     Task<TodoList> CreateAsync(TodoList todoList, CancellationToken cancellationToken = default);
     Task<TodoList> UpdateAsync(TodoList todoList, CancellationToken cancellationToken = default);
+    Task<TodoList> AddUserAsync(string id, string userId, CancellationToken cancellationToken = default);
+    Task RemoveUserAsync(string id, string userId, CancellationToken cancellationToken = default);
     Task DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

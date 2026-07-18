@@ -40,7 +40,7 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     [ProducesResponseType(typeof(TodoListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetTodoList([FromRoute] string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<TodoListResponse>> GetTodoList([FromRoute] string id, CancellationToken cancellationToken)
     {
         var result = await todoListService.GetTodoListAsync(id, cancellationToken);
         return Ok(result);
@@ -78,20 +78,38 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     }
 
     [HttpGet("{id}/users")]
-    public IActionResult GetTodoListUsers([FromRoute] string id)
+    [ProducesResponseType(typeof(TodoListUsersResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<TodoListUsersResponse>> GetTodoListUsers([FromRoute] string id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await todoListService.GetTodoListUsersAsync(id, cancellationToken);
+        return Ok(result);
     }
 
     [HttpPost("{id}/users")]
-    public IActionResult AddTodoListUser([FromRoute] string id)
+    [ProducesResponseType(typeof(TodoListUsersResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<TodoListUsersResponse>> AddTodoListUser(
+        [FromRoute] string id,
+        [FromBody] AddTodoListUserRequest request,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await todoListService.AddTodoListUserAsync(id, request, cancellationToken);
+        return Ok(result);
     }
 
     [HttpDelete("{id}/users/{userId}")]
-    public IActionResult RemoveTodoListUser([FromRoute] string id, [FromRoute] string userId)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> RemoveTodoListUser(
+        [FromRoute] string id,
+        [FromRoute] string userId,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await todoListService.RemoveTodoListUserAsync(id, userId, cancellationToken);
+        return NoContent();
     }
 }

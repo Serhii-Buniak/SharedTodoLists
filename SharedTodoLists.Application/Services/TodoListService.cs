@@ -110,6 +110,65 @@ internal class TodoListService : ITodoListService
         return ToResponse(result);
     }
 
+    public async Task<TodoListUsersResponse> GetTodoListUsersAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserProvider.GetUserId();
+
+        var todoList = await _todoListRepository.GetByIdAsync(id, cancellationToken);
+
+        if (todoList is null)
+            throw new NotFoundException($"Todo list '{id}' not found.");
+
+        if (!_accessPolicy.CanRead(todoList, currentUserId))
+            throw new ForbiddenException("You do not have access to this todo list.");
+
+        return ToUsersResponse(todoList);
+    }
+
+    public async Task<TodoListUsersResponse> AddTodoListUserAsync(string id, AddTodoListUserRequest request, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserProvider.GetUserId();
+
+        var todoList = await _todoListRepository.GetByIdAsync(id, cancellationToken);
+
+        if (todoList is null)
+            throw new NotFoundException($"Todo list '{id}' not found.");
+
+        if (!_accessPolicy.CanManageUsers(todoList, currentUserId))
+            throw new ForbiddenException("You do not have access to this todo list.");
+
+        if (request.UserId == todoList.OwnerId)
+            throw new BadRequestException("Cannot add the owner as a shared user.");
+
+        if (todoList.SharedUserIds.Contains(request.UserId))
+            throw new BadRequestException("User is already added to this todo list.");
+
+        var updated = await _todoListRepository.AddUserAsync(id, request.UserId, cancellationToken);
+
+        return ToUsersResponse(updated);
+    }
+
+    public async Task RemoveTodoListUserAsync(string id, string userId, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserProvider.GetUserId();
+
+        var todoList = await _todoListRepository.GetByIdAsync(id, cancellationToken);
+
+        if (todoList is null)
+            throw new NotFoundException($"Todo list '{id}' not found.");
+
+        if (!_accessPolicy.CanManageUsers(todoList, currentUserId))
+            throw new ForbiddenException("You do not have access to this todo list.");
+
+        if (userId == todoList.OwnerId)
+            throw new BadRequestException("Cannot remove the owner from the todo list.");
+
+        if (!todoList.SharedUserIds.Contains(userId))
+            throw new NotFoundException($"User '{userId}' is not a member of this todo list.");
+
+        await _todoListRepository.RemoveUserAsync(id, userId, cancellationToken);
+    }
+
     public async Task DeleteTodoListAsync(string id, CancellationToken cancellationToken = default)
     {
         var currentUserId = _currentUserProvider.GetUserId();
@@ -124,6 +183,12 @@ internal class TodoListService : ITodoListService
 
         await _todoListRepository.DeleteAsync(id, cancellationToken);
     }
+
+    private static TodoListUsersResponse ToUsersResponse(TodoList todoList) => new()
+    {
+        OwnerId = todoList.OwnerId,
+        SharedUserIds = todoList.SharedUserIds
+    };
 
     private static TodoListResponse ToResponse(TodoList todoList) => new()
     {

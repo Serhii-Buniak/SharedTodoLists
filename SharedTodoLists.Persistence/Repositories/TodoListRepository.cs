@@ -78,6 +78,22 @@ internal class TodoListRepository(MongoDbContext context) : ITodoListRepository
         return ToModel(entry);
     }
 
+    public async Task<TodoList> AddUserAsync(string id, string userId, CancellationToken cancellationToken = default)
+    {
+        var objectId = ObjectId.Parse(id);
+        var update = Builders<TodoListEntry>.Update.AddToSet(x => x.SharedUserIds, userId);
+        var options = new FindOneAndUpdateOptions<TodoListEntry> { ReturnDocument = ReturnDocument.After };
+        var entry = await context.TodoLists.FindOneAndUpdateAsync(x => x.Id == objectId, update, options, cancellationToken);
+        return ToModel(entry);
+    }
+
+    public async Task RemoveUserAsync(string id, string userId, CancellationToken cancellationToken = default)
+    {
+        var objectId = ObjectId.Parse(id);
+        var update = Builders<TodoListEntry>.Update.Pull(x => x.SharedUserIds, userId);
+        await context.TodoLists.UpdateOneAsync(x => x.Id == objectId, update, cancellationToken: cancellationToken);
+    }
+
     public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         var objectId = ObjectId.Parse(id);

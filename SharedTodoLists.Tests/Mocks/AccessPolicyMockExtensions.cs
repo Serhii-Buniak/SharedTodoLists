@@ -15,6 +15,15 @@ internal static class AccessPolicyMockExtensions
         return mock;
     }
 
+    internal static Mock<ITodoListAccessPolicy> SetupCanManageUsersReturns(
+        this Mock<ITodoListAccessPolicy> mock,
+        bool result)
+    {
+        mock.Setup(p => p.CanManageUsers(It.IsAny<TodoList>(), It.IsAny<string>()))
+            .Returns(result);
+        return mock;
+    }
+
     internal static Mock<ITodoListAccessPolicy> SetupCanUpdateReturns(
         this Mock<ITodoListAccessPolicy> mock,
         bool result)
